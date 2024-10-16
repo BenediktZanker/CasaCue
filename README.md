@@ -85,7 +85,7 @@ CasaCue offers a comprehensive set of features that improve both customer satisf
 
 ### Current Status
 
-The repository has been successfully set up, with initial files such as `.gitignore` `LICENSE` and `documentation` added. The next step involves implementing the database structure, setting up the cloud environment, and starting with the logic for managing the waitlist in the cloud.
+The repository has been successfully set up, with initial files such as `.gitignore` `LICENSE` and `documentation` added. The next step involves implementing the database structure, setting up the cloud environment, and starting with the logic for managing the waitlist in the cloud. See the [Ducumentation](./documentation/environment_setup.md) file for more details.
 
 ## License
 
