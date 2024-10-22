@@ -1,0 +1,36 @@
+name: .NET CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.x'
+
+    # Wiederherstellung der Abhängigkeiten für beide Projekte
+    - name: Restore dependencies for Backend and Tests
+      run: |
+        dotnet restore CasaCue/CasaCue.csproj
+        dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
+
+    # Baue das Backend-Projekt
+    - name: Build Backend
+      run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
+
+    # Führe die Tests aus
+    - name: Run Tests
+      run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
