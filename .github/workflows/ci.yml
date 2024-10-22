@@ -19,13 +19,18 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '8.x'
+        dotnet-version: '7.x'
 
-    - name: Restore dependencies
-      run: dotnet restore CasaCue/CasaCue.csproj
+    # Wiederherstellung der Abhängigkeiten für beide Projekte
+    - name: Restore dependencies for Backend and Tests
+      run: |
+        dotnet restore CasaCue/CasaCue.csproj
+        dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
-    - name: Build
+    # Baue das Backend-Projekt
+    - name: Build Backend
       run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
 
-    - name: Test
+    # Führe die Tests aus
+    - name: Run Tests
       run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
