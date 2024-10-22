@@ -22,10 +22,10 @@ jobs:
         dotnet-version: '8.x'
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore CasaCue/CasaCue.csproj
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
