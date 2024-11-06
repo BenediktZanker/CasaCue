@@ -1,6 +1,3 @@
 @CasaCue_HostAddress = http://localhost:5026
 
-GET {{CasaCue_HostAddress}}/weatherforecast/
-Accept: application/json
-
 ###

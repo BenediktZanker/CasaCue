@@ -38,23 +38,40 @@
 ### Step 2: Implementing the Initial Test
 
 1. **Edit the Example Test**:
-   - To verify that the environment was set up correctly, I added a simple test to check basic functionality:
+   - To verify that the environment was set up correctly, I added a simple test to check basic functionality of a first small class Waitlist:
      ```csharp
-     using Xunit;
+    namespace CasaCue.Tests
+    {
+        public class WaitlistTests
+        {
+            [Fact]
+            public void AddGuest_IncreasesWaitlistCount()
+            {
+                // Arrange
+                var waitlist = new Waitlist();
 
-     namespace CasaCue.Tests
-     {
-         public class UnitTest1
-         {
-             [Fact]
-             public void TestBasicFunctionality()
-             {
-                 int expected = 5;
-                 int actual = 2 + 3;
-                 Assert.Equal(expected, actual);
-             }
-         }
-     }
+                // Act
+                waitlist.AddGuest("John Doe");
+                waitlist.AddGuest("Jane Smith");
+
+                // Assert
+                Assert.Equal(2, waitlist.GetWaitlistCount());
+            }
+
+            [Fact]
+            public void GetWaitlistCount_EmptyWaitlist_ReturnsZero()
+            {
+                // Arrange
+                var waitlist = new Waitlist();
+
+                // Act
+                var count = waitlist.GetWaitlistCount();
+
+                // Assert
+                Assert.Equal(0, count);
+            }
+        }
+    }
      ```
 
 2. **Run Tests Locally**:
