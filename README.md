@@ -23,6 +23,8 @@ In the first milestone, we focused on creating and setting up the **GitHub repos
 - Basic configuration for future cloud deployment.
 - Documentation covering project goals, problem statement, and fundamental requirements.
 
+For detailed information refer to the [Documentation](./hito1-environment_setup).
+
 ### Milestone 2: Continuous Integration (CI) Implementation
 
 In the second milestone, continuous integration (CI) was implemented for CasaCue, including:
