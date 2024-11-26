@@ -109,9 +109,7 @@ Log.Information("Guest {Name} with ID {Id} removed from the waitlist.", guest.Na
 
 This information is stored in daily log files, located in the Logs folder within the CasaCue directory as well as in the Console.
 
-
-weitere anpassugnen:
-Zudem habe gitIgnoire wurde angepasst um bsp keine Log files zu pushen.
-Auch die Yaml wurde angepasst dass sie mir Falls ein Test fehlschlägt, kannst du die Logs aus der CI/CD-Pipeline herunterladen und analysieren.
+Here’s an example of how a log file might look after starting the API and making a GET request:
+![Log File Screenshot](./screenshots/ExampleLogFile.png)
 
 For further details about the project, refer to the main [README](../README.md).
