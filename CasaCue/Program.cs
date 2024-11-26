@@ -6,6 +6,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 10)
     .CreateLogger();
+    
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +20,15 @@ builder.Services.AddSwaggerGen();
 builder.Host.UseSerilog(); // Serilog integrieren
 
 var app = builder.Build();
-
+if (app.Environment.IsEnvironment("Test"))
+{
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.File("logs/test-log-.txt", rollingInterval: RollingInterval.Day)
+        .CreateLogger();
+}
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() )
 {
     app.UseSwagger();
     app.UseSwaggerUI();
