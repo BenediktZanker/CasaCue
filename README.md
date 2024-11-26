@@ -34,6 +34,23 @@ In the second milestone, continuous integration (CI) was implemented for CasaCue
 
 For detailed information on the current status and setup, refer to the [Documentation](./hito2-continuous_integration.md).
 
+
+### Milestone 3: Microservices
+
+In this milestone, we implemented the core API and microservice architecture for managing restaurant waitlists. Key achievements include:
+
+- **API Endpoints**:
+  - Add, retrieve, and remove guests from the waitlist.
+  - Retrieve guests by ID, name, or position.
+  - Reset the waitlist for testing purposes.
+- **Logging**:
+  - Integrated **Serilog** for logging API activities to files and console.
+- **Testing**:
+  - Extended **unit tests** for core logic.
+  - Introduced **integration tests** to validate API functionality.
+
+For detailed implementation, refer to the [Hito 3 Documentation](./documentation/hito3-microservices.md).
+
 ---
 
 ## Project Goal
