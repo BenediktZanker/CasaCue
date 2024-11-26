@@ -107,8 +107,11 @@ In the **Controller** file, I included meaningful logging, such as Warnings or I
 Log.Warning("Attempt to add a guest with an empty ID.");
 Log.Information("Guest {Name} with ID {Id} removed from the waitlist.", guest.Name, id);
 
-This configuration ensures a new log file is created daily while automatically deleting older files once the total exceeds 10 in the folder.
-
 This information is stored in daily log files, located in the Logs folder within the CasaCue directory as well as in the Console.
+
+
+weitere anpassugnen:
+Zudem habe gitIgnoire wurde angepasst um bsp keine Log files zu pushen.
+Auch die Yaml wurde angepasst dass sie mir Falls ein Test fehlschlägt, kannst du die Logs aus der CI/CD-Pipeline herunterladen und analysieren.
 
 For further details about the project, refer to the main [README](../README.md).
