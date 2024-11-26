@@ -60,7 +60,7 @@ Fetches all guests with a matching `Name`. Supports multiple matches.
 **Endpoint**: `GET /api/waitlist/position/{position}`  
 Fetches the guest at a specific position in the waitlist.
 
-#### 6. Get Guest by Position
+#### 7. Delete Guest
 **Endpoint**: `DELETE /api/waitlist/reset`  
 Resets the waitlist.
 
