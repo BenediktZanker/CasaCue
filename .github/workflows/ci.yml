@@ -31,6 +31,7 @@ jobs:
         run: |
           docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue_db -p 5432:5432 -d postgres:15
 
+      # Warten, bis die Datenbank bereit ist
       - name: Wait for PostgreSQL to be ready
         run: |
           until docker exec test-database pg_isready -U casacue; do
@@ -39,12 +40,15 @@ jobs:
           done
         shell: bash
 
+      # Zusätzliche Wartezeit einfügen
+      - name: Wait additional time for PostgreSQL
+        run: sleep 10
+
       - name: Restore dependencies
         run: |
           dotnet restore CasaCue/CasaCue.csproj
           dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
-      # EF-Migrationen anwenden mit lokalem Tool
       - name: Apply EF migrations
         run: dotnet tool run dotnet-ef database update --project CasaCue/CasaCue.csproj
 
@@ -53,4 +57,3 @@ jobs:
 
       - name: Run tests
         run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
-
