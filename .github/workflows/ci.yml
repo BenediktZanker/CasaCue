@@ -19,26 +19,24 @@ jobs:
       ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=casacue_db;Username=casacue;Password=password"
 
     steps:
-      # Checkout code from the repository
-      - name: Checkout code
+      - name: Check out repository
         uses: actions/checkout@v2
 
-      # Set up .NET environment
       - name: Set up .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '8.0'
 
-      # Start PostgreSQL as a Docker container
+      - name: Install dotnet-ef Tool
+        run: dotnet tool install --global dotnet-ef
+        env:
+          DOTNET_ROOT: /usr/share/dotnet
+          PATH: $PATH:/usr/share/dotnet/tools
+
       - name: Start PostgreSQL service
         run: |
           docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue_db -p 5432:5432 -d postgres:15
-        env:
-          POSTGRES_USER: casacue
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: casacue_db
 
-      # Wait for PostgreSQL to be ready
       - name: Wait for PostgreSQL to be ready
         run: |
           until docker exec test-database pg_isready -U casacue; do
@@ -47,20 +45,16 @@ jobs:
           done
         shell: bash
 
-      # Restore dependencies
       - name: Restore dependencies
         run: |
           dotnet restore CasaCue/CasaCue.csproj
           dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
-      # Apply EF migrations
       - name: Apply EF migrations
         run: dotnet ef database update --project CasaCue/CasaCue.csproj
 
-      # Build the project
       - name: Build project
         run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
 
-      # Run tests
       - name: Run tests
         run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
