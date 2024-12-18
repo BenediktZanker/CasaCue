@@ -46,7 +46,8 @@ jobs:
           dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
       - name: Apply EF migrations
-        run: dotnet tool run dotnet-ef database update --project CasaCue/CasaCue.csproj
+        run: dotnet tool run dotnet-ef database update --project CasaCue/CasaCue.csproj --startup-project CasaCue/CasaCue.csproj
+      
 
       - name: Build project
         run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
