@@ -14,6 +14,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password"
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -23,7 +26,6 @@ jobs:
         with:
           dotnet-version: '8.0'
 
-      # Lokales Tool-Manifest erstellen und dotnet-ef installieren
       - name: Install dotnet-ef as local tool
         run: dotnet new tool-manifest && dotnet tool install dotnet-ef
 
@@ -31,18 +33,12 @@ jobs:
         run: |
           docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue_db -p 5432:5432 -d postgres:15
 
-      # Warten, bis die Datenbank bereit ist
       - name: Wait for PostgreSQL to be ready
         run: |
           until docker exec test-database pg_isready -U casacue; do
             echo "Waiting for database to be ready..."
             sleep 5
           done
-        shell: bash
-
-      # Zusätzliche Wartezeit einfügen
-      - name: Wait additional time for PostgreSQL
-        run: sleep 10
 
       - name: Restore dependencies
         run: |

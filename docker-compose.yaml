@@ -1,45 +1,60 @@
+version: '3.8'
+
 services:
+  # Backend Service
   backend:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
     ports:
-      - "5001:8080"
+      - "5001:8080" # Externe Portzuordnung für Backend
     environment:
       - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password
       - AuthService__Url=http://auth:5002
     depends_on:
       database:
-        condition: service_healthy
+        condition: service_healthy # Warte, bis die Datenbank bereit ist
       auth:
         condition: service_started
+    networks:
+      - casacue-network
     command: >
-      sh -c "dotnet ef database update && dotnet run"
+      sh -c "dotnet ef database update && dotnet run" # Migrationen anwenden und Anwendung starten
 
+  # Auth Service
   auth:
     build:
       context: .
       dockerfile: docker/auth/Dockerfile
     ports:
-      - "5002:5002"
+      - "5002:5002" # Externe Portzuordnung für Auth Service
     environment:
       - JWT_SECRET=mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$
+    networks:
+      - casacue-network
 
+  # Database Service
   database:
     image: postgres:15
+    ports:
+      - "5432:5432" # Externe Portzuordnung für PostgreSQL
     environment:
       - POSTGRES_USER=casacue
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=casacue_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U casacue"]
+      test: ["CMD-SHELL", "pg_isready -U casacue"] # Überprüfen, ob die Datenbank bereit ist
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data # Persistente Datenspeicherung
+    networks:
+      - casacue-network
+
+networks:
+  casacue-network:
+    driver: bridge
 
 volumes:
   db-data:
