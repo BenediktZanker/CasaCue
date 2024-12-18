@@ -36,3 +36,4 @@ jobs:
     # Führe die Tests aus
     - name: Run Tests
       run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
+

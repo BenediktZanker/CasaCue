@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Backend Service - Main API for the application
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile # Path to the Dockerfile for the backend
+    ports:
+      - "5001:8080" # Map container port 8080 to host port 5001
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password # Connection string for PostgreSQL database
+      - AuthService__Url=http://auth:5002 # URL for the Auth Service
+    depends_on:
+      # Dependencies for the backend
+      database:
+        condition: service_healthy # Wait until the database is healthy before starting
+      auth:
+        condition: service_started # Start only after the auth service is started
+
+  # Auth Service - Handles user authentication and JWT token generation
+  auth:
+    build:
+      context: .
+      dockerfile: docker/auth/Dockerfile # Path to the Dockerfile for the auth service
+    ports:
+      - "5002:5002" # Map container port 5002 to host port 5002
+    environment:
+      - JWT_SECRET=mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$ # Secret key for JWT token generation
+
+  # Database Service - PostgreSQL database
+  database:
+    image: postgres:15 # PostgreSQL version 15
+    environment:
+      - POSTGRES_USER=casacue # Database username
+      - POSTGRES_PASSWORD=password # Database password
+      - POSTGRES_DB=casacue_db # Database name
+    ports:
+      - "5432:5432" # Map container port 5432 to host port 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data # Persist database data locally
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casacue"] # Check if the database is ready
+      interval: 10s # Run healthcheck every 10 seconds
+      timeout: 5s # Wait up to 5 seconds for a response
+      retries: 5 # Mark as unhealthy after 5 failed checks
+
+volumes:
+  # Volume to persist PostgreSQL data
+  db-data:
