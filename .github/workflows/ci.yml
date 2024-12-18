@@ -14,10 +14,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      JWT_SECRET: "mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$"
-      ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=casacue_db;Username=casacue;Password=password"
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -27,11 +23,9 @@ jobs:
         with:
           dotnet-version: '8.0'
 
-      - name: Install dotnet-ef Tool
-        run: dotnet tool install --global dotnet-ef
-        env:
-          DOTNET_ROOT: /usr/share/dotnet
-          PATH: $PATH:/usr/share/dotnet/tools
+      # Lokales Tool-Manifest erstellen und dotnet-ef installieren
+      - name: Install dotnet-ef as local tool
+        run: dotnet new tool-manifest && dotnet tool install dotnet-ef
 
       - name: Start PostgreSQL service
         run: |
@@ -50,11 +44,13 @@ jobs:
           dotnet restore CasaCue/CasaCue.csproj
           dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
+      # EF-Migrationen anwenden mit lokalem Tool
       - name: Apply EF migrations
-        run: dotnet ef database update --project CasaCue/CasaCue.csproj
+        run: dotnet tool run dotnet-ef database update --project CasaCue/CasaCue.csproj
 
       - name: Build project
         run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
 
       - name: Run tests
         run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
+
