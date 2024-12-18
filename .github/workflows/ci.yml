@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue;Username=casacue;Password=password"
+      ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=casacue;Username=casacue;Password=password"
 
     steps:
       - name: Check out repository
