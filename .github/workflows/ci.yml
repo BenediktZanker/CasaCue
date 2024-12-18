@@ -1,4 +1,4 @@
-name: .NET CI
+name: .NET CI and Test
 
 on:
   push:
@@ -11,29 +11,56 @@ on:
       - development
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      JWT_SECRET: "mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$"
+      ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=casacue_db;Username=casacue;Password=password"
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '8.x'
+      # Set up .NET environment
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.x'
 
-    # Wiederherstellung der Abhängigkeiten für beide Projekte
-    - name: Restore dependencies for Backend and Tests
-      run: |
-        dotnet restore CasaCue/CasaCue.csproj
-        dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
+      # Start PostgreSQL as a Docker container
+      - name: Start PostgreSQL service
+        run: |
+          docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue_db -p 5432:5432 -d postgres:15
+        env:
+          POSTGRES_USER: casacue
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: casacue_db
 
-    # Baue das Backend-Projekt
-    - name: Build Backend
-      run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
+      # Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until docker exec test-database pg_isready -U casacue; do
+            echo "Waiting for database to be ready..."
+            sleep 5
+          done
+        shell: bash
 
-    # Führe die Tests aus
-    - name: Run Tests
-      run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
+      # Restore dependencies
+      - name: Restore dependencies
+        run: |
+          dotnet restore CasaCue/CasaCue.csproj
+          dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
+      # Apply EF migrations
+      - name: Apply EF migrations
+        run: dotnet ef database update --project CasaCue/CasaCue.csproj
+
+      # Build the project
+      - name: Build project
+        run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
+
+      # Run tests
+      - name: Run tests
+        run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
