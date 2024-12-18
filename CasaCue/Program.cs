@@ -16,7 +16,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // ---- Konfigurationen laden ----
-var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "fallback_secret_key";
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "fallback_secret_key";
 var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // ---- Services hinzufügen ----

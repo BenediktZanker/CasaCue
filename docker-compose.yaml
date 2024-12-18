@@ -12,11 +12,12 @@ services:
       - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password # Connection string for PostgreSQL database
       - AuthService__Url=http://auth:5002 # URL for the Auth Service
     depends_on:
-      # Dependencies for the backend
       database:
         condition: service_healthy # Wait until the database is healthy before starting
       auth:
         condition: service_started # Start only after the auth service is started
+    command: >
+      sh -c "dotnet ef database update && dotnet run" # Ensure database migrations are applied before starting
 
   # Auth Service - Handles user authentication and JWT token generation
   auth:
@@ -48,3 +49,4 @@ services:
 volumes:
   # Volume to persist PostgreSQL data
   db-data:
+

@@ -68,9 +68,7 @@ namespace CasaCue.Tests.IntegrationTests
                 await CleanupGuest(guestId);
             }
         }
-        public Task InitializeAsync() => Task.CompletedTask; // Keine spezielle Initialisierung nötig
 
+        public Task InitializeAsync() => Task.CompletedTask; // Keine spezielle Initialisierung nötig
     }
-    
-    
 }
