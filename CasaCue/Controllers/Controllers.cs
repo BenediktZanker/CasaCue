@@ -9,15 +9,10 @@ namespace CasaCue.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WaitlistController : ControllerBase
+    public class WaitlistController(WaitlistService service) : ControllerBase
     {
-        private readonly WaitlistService _service;
+        private readonly WaitlistService _service = service;
 
-        public WaitlistController(WaitlistService service)
-        {
-            _service = service;
-        }
-        
         [HttpGet]
         public IActionResult GetWaitlist()
         {
@@ -25,6 +20,8 @@ namespace CasaCue.Controllers
             var waitlist = _service.GetWaitlist();
             return Ok(waitlist);
         }
+
+        
 
         [HttpPost]
         public IActionResult AddGuest([FromBody] Guest guest)
@@ -36,11 +33,12 @@ namespace CasaCue.Controllers
             }
 
             _service.AddGuest(guest.Id, guest.Name, guest.GroupSize);
-            Log.Information("Guest {Name} with ID {Id} and group size {GroupSize} added to the waitlist.",
-                guest.Name, guest.Id, guest.GroupSize);
+            var addedGuest = _service.GetGuestById(guest.Id); // Hole das gespeicherte Guest-Objekt
+            Log.Information("Guest {Name} added with ID {Id} and group size {GroupSize}.", guest.Name, guest.Id, guest.GroupSize);
 
-            return CreatedAtAction(nameof(GetWaitlist), guest);
+            return CreatedAtAction(nameof(GetGuestById), new { id = guest.Id }, addedGuest);
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult RemoveGuest(Guid id)
@@ -102,13 +100,18 @@ namespace CasaCue.Controllers
             return Ok(guest);
         }
         
-        // Reset Waitlist
-        [HttpDelete("reset")]
-        public IActionResult ResetWaitlist()
+        [HttpDelete("cleanup/{id}")]
+        public IActionResult CleanupGuest(Guid id)
         {
-            _service.ClearWaitlist();
-            return NoContent();
+            var guest = _service.GetGuestById(id);
+            if (guest != null)
+            {
+                _service.RemoveGuest(id);
+                return Ok(new { Message = $"Guest with ID {id} deleted." });
+            }
+            return NotFound(new { Message = $"Guest with ID {id} not found." });
         }
+
 
     }
 }

@@ -1,9 +1,19 @@
-namespace CasaCue.Models;
+using System.ComponentModel.DataAnnotations;
 
-public class Guest
+namespace CasaCue.Models
 {
-    public Guid Id { get; set; } // UUID wird übergeben
-    public string Name { get; set; } // Name des Gastes
-    public int GroupSize { get; set; } // Gruppengröße
-    public int QueuePosition { get; set; } // Position in der Warteliste
+    public class Guest
+    {
+        [Key] // Markiert die Id als Primärschlüssel
+        public Guid Id { get; set; } // UUID wird automatisch generiert
+
+        [Required]
+        public string Name { get; set; } // Name des Gastes
+
+        [Required]
+        public int GroupSize { get; set; } // Gruppengröße
+
+        [Required]
+        public int QueuePosition { get; set; } // Position in der Warteliste
+    }
 }
