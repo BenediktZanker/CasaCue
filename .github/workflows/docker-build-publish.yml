@@ -1,59 +1,61 @@
-name: Build and Publish to GitHub Packages
+name: Build and Publish Docker Images
 
 on:
   push:
     branches:
-      - main  # Trigger Workflow only on pushes to the 'main' branch
+      - main  # Workflow wird bei Pushes auf den Branch 'main' ausgelöst
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
+    env:
+      JWT_SECRET: "mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$"
+      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password"
+
     steps:
-      # Step 1: Check out the repository
-      # Fetch the latest code from the repository
-      - name: Check out the repository
+      # Schritt 1: Check out Repository
+      - name: Check out repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up .NET environment
-      # Install the required .NET SDK version
+      # Schritt 2: Set up .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'
 
-      # Step 3: Restore .NET dependencies
-      # Restore all dependencies specified in the project
-      - name: Install dependencies
+      # Schritt 3: Restore .NET Dependencies
+      - name: Restore dependencies
         run: dotnet restore
 
-      # Step 4: Build the project
-      # Compile the application in Release mode
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      # Schritt 4: Build the Project
+      - name: Build the project
+        run: dotnet build --configuration Release --no-restore
 
-      # Step 5: Run tests
-      # Execute all unit and integration tests
+      # Schritt 5: Run Tests
       - name: Run tests
         run: dotnet test --no-restore --verbosity normal
 
-      # Step 6: Log in to GitHub Container Registry
-      # Authenticate with GitHub Container Registry using the GitHub-provided token
+      # Schritt 6: Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-      # Step 7: Build and push Backend Docker image
-      # Create the backend container image and push it to GitHub Container Registry
-      - name: Build and push Backend Docker image
+      # Schritt 7: Build and Push Backend Docker Image
+      - name: Build and Push Backend Docker Image
         run: |
           docker build -t ghcr.io/${{ github.repository }}/backend:latest ./docker/backend
           docker push ghcr.io/${{ github.repository }}/backend:latest
 
-      # Step 8: Build and push Auth Docker image
-      # Create the auth container image and push it to GitHub Container Registry
-      - name: Build and push Auth Docker image
+      # Schritt 8: Build and Push Auth Docker Image
+      - name: Build and Push Auth Docker Image
         run: |
           docker build -t ghcr.io/${{ github.repository }}/auth:latest ./docker/auth
           docker push ghcr.io/${{ github.repository }}/auth:latest
 
+      # Schritt 9: Build and Push Database Docker Image (optional, falls eigene DB-Images)
+      
+      - name: Build and Push Database Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/database:latest ./docker/database
+          docker push ghcr.io/${{ github.repository }}/database:latest
 
