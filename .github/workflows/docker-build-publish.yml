@@ -11,7 +11,7 @@ jobs:
 
     env:
       JWT_SECRET: "mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$"
-      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password"
+      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue;Username=casacue;Password=password"
 
     steps:
       # Schritt 1: Check out Repository

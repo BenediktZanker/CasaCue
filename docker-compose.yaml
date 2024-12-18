@@ -9,7 +9,7 @@ services:
     ports:
       - "5001:8080" # Externe Portzuordnung für Backend
     environment:
-      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password
+      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue;Username=casacue;Password=password
       - AuthService__Url=http://auth:5002
     depends_on:
       database:
@@ -41,7 +41,7 @@ services:
     environment:
       - POSTGRES_USER=casacue
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=casacue_db
+      - POSTGRES_DB=casacue
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U casacue"] # Überprüfen, ob die Datenbank bereit ist
       interval: 10s

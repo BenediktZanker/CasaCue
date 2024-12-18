@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue_db;Username=casacue;Password=password"
+      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue;Username=casacue;Password=password"
 
     steps:
       - name: Check out repository
@@ -31,7 +31,7 @@ jobs:
 
       - name: Start PostgreSQL service
         run: |
-          docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue_db -p 5432:5432 -d postgres:15
+          docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue -p 5432:5432 -d postgres:15
 
       - name: Wait for PostgreSQL to be ready
         run: |
