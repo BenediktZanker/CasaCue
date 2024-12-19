@@ -30,8 +30,8 @@ services:
     ports:
       - "5002:8080" # Mapped Port 8080 im Container auf Port 5002 auf dem Host
     environment:
-      - JWT_SECRET: "mySuperSecretKeyForJWT123mySuperSecretKeyForJWT123"
-      - ASPNETCORE_URLS=http://+:8080
+      JWT_SECRET: "mySuperSecretKeyForJWT123mySuperSecretKeyForJWT123"
+      ASPNETCORE_URLS: "http://+:8080"
     networks:
       - casacue-network
 
