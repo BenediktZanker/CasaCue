@@ -26,6 +26,10 @@ jobs:
         with:
           dotnet-version: '8.0'
       
+      - name: Install docker-compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+    
+      
       # Optional: Wenn du dotnet-ef brauchst, um Migrationen manuell auszuführen,
       # kannst du die Installation beibehalten. Falls du Migrationen über die 
       # Anwendung beim Start anwendest, ist das nicht nötig.
