@@ -1,4 +1,4 @@
-using CasaCue.Models;
+using CasaCue.Shared.Models;
 using CasaCue.Services;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;

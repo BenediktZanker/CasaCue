@@ -1,7 +1,7 @@
-using CasaCue.Models;
+using CasaCue.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CasaCue.Data
+namespace CasaCue.Shared.Data
 {
     public class ApplicationDbContext : DbContext
     {

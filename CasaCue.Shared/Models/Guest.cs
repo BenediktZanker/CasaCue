@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CasaCue.Models
+namespace CasaCue.Shared.Models
 {
     public class Guest
     {

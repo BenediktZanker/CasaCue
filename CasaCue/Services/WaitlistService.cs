@@ -1,5 +1,5 @@
-using CasaCue.Data;
-using CasaCue.Models;
+using CasaCue.Shared.Data;
+using CasaCue.Shared.Models;
 using System.Collections.Generic;
 using System.Linq;
 

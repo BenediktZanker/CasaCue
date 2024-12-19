@@ -1,6 +1,6 @@
-using CasaCue.Models;
 using CasaCue.Services;
-using CasaCue.Data;
+using CasaCue.Shared.Models;
+using CasaCue.Shared.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

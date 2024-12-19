@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaCue", "CasaCue\CasaCue.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaCue.Tests", "CasaCue.Tests\CasaCue.Tests.csproj", "{2F365665-C428-4A68-A4C7-C6B4F6D1C207}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaCue.Auth", "CasaCue.Auth\CasaCue.Auth.csproj", "{6FA2B8D5-AAC0-4DB1-9EE3-1C31B15EFA62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasaCue.Shared", "CasaCue.Shared\CasaCue.Shared.csproj", "{56D23062-76EC-4084-85A9-D8D17D1F8E77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{2F365665-C428-4A68-A4C7-C6B4F6D1C207}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F365665-C428-4A68-A4C7-C6B4F6D1C207}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F365665-C428-4A68-A4C7-C6B4F6D1C207}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FA2B8D5-AAC0-4DB1-9EE3-1C31B15EFA62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FA2B8D5-AAC0-4DB1-9EE3-1C31B15EFA62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FA2B8D5-AAC0-4DB1-9EE3-1C31B15EFA62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FA2B8D5-AAC0-4DB1-9EE3-1C31B15EFA62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56D23062-76EC-4084-85A9-D8D17D1F8E77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56D23062-76EC-4084-85A9-D8D17D1F8E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56D23062-76EC-4084-85A9-D8D17D1F8E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56D23062-76EC-4084-85A9-D8D17D1F8E77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
