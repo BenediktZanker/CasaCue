@@ -9,15 +9,19 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CasaCue.Tests
 {
-    public class AuthControllerTests : IClassFixture<WebApplicationFactory<AuthProgram>>, IAsyncLifetime
+    public class AuthControllerTests : IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly ITestOutputHelper _output;
         private readonly List<string> _createdUsers = new(); // Speichert Benutzernamen für das Cleanup
 
-        public AuthControllerTests(WebApplicationFactory<AuthProgram> factory, ITestOutputHelper output)
+        public AuthControllerTests(ITestOutputHelper output)
         {
-            _client = factory.CreateClient();
+            // Client konfigurieren, um mit dem Auth-Service im Docker-Container zu kommunizieren
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5002") // Docker-URL für Auth-Service
+            };
             _output = output;
         }
 
@@ -129,5 +133,6 @@ namespace CasaCue.Tests
         public Task InitializeAsync() => Task.CompletedTask; // Keine Initialisierung nötig
     }
 }
+
 
 

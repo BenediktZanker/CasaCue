@@ -7,19 +7,20 @@ services:
       context: .
       dockerfile: docker/backend/Dockerfile
     ports:
-      - "5001:8080" # Externe Portzuordnung für Backend
+      - "5001:8080" # Mapped Port 8080 im Container auf Port 5001 auf dem Host
     environment:
       - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue;Username=casacue;Password=password
-      - AuthService__Url=http://auth:5002
+      - AuthService__Url=http://auth:8080
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       database:
-        condition: service_healthy # Warte, bis die Datenbank bereit ist
+        condition: service_healthy # Warten, bis die Datenbank bereit ist
       auth:
         condition: service_started
     networks:
       - casacue-network
     command: >
-      sh -c "dotnet ef database update && dotnet run" # Migrationen anwenden und Anwendung starten
+      sh -c "dotnet ef database update && dotnet CasaCue.dll"
 
   # Auth Service
   auth:
@@ -27,9 +28,10 @@ services:
       context: .
       dockerfile: docker/auth/Dockerfile
     ports:
-      - "5002:5002" # Externe Portzuordnung für Auth Service
+      - "5002:8080" # Mapped Port 8080 im Container auf Port 5002 auf dem Host
     environment:
       - JWT_SECRET=mySuperSecretKeyForJWT123!@#$mySuperSecretKeyForJWT123!@#$
+      - ASPNETCORE_URLS=http://+:8080
     networks:
       - casacue-network
 
@@ -37,18 +39,18 @@ services:
   database:
     image: postgres:15
     ports:
-      - "5432:5432" # Externe Portzuordnung für PostgreSQL
+      - "5432:5432"
     environment:
       - POSTGRES_USER=casacue
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=casacue
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U casacue"] # Überprüfen, ob die Datenbank bereit ist
+      test: ["CMD-SHELL", "pg_isready -U casacue"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - db-data:/var/lib/postgresql/data # Persistente Datenspeicherung
+      - db-data:/var/lib/postgresql/data
     networks:
       - casacue-network
 

@@ -32,4 +32,8 @@
     <ProjectReference Include="..\CasaCue.Shared\CasaCue.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

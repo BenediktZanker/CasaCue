@@ -1,19 +1,22 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace CasaCue.Tests.IntegrationTests
 {
-    public class WaitlistIntegrationTests : IClassFixture<WebApplicationFactory<BackendProgram>>, IAsyncLifetime
+    public class WaitlistIntegrationTests : IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly List<Guid> _createdGuests = new(); // Speichert erstellte Guest-IDs für Cleanup
 
-        public WaitlistIntegrationTests(WebApplicationFactory<BackendProgram> factory)
+        public WaitlistIntegrationTests()
         {
-            _client = factory.CreateClient();
+            // Client konfigurieren, um mit dem Backend-Service im Docker-Container zu kommunizieren
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5001") // Docker-URL für Backend-Service
+            };
         }
 
         private StringContent CreateJsonContent(object obj) =>

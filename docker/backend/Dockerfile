@@ -26,4 +26,4 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Define the entry point for the container
-ENTRYPOINT ["dotnet", "CasaCue.Backend.dll"]
+ENTRYPOINT ["dotnet", "CasaCue.dll"]
