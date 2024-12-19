@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=casacue;Username=casacue;Password=password"
+      ConnectionStrings__DefaultConnection: "Host=database;Port=5432;Database=casacue;Username=casacue;Password=password"
 
     steps:
       - name: Check out repository
@@ -25,32 +25,43 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '8.0'
-
+      
+      # Optional: Wenn du dotnet-ef brauchst, um Migrationen manuell auszuführen,
+      # kannst du die Installation beibehalten. Falls du Migrationen über die 
+      # Anwendung beim Start anwendest, ist das nicht nötig.
       - name: Install dotnet-ef as local tool
         run: dotnet new tool-manifest && dotnet tool install dotnet-ef
 
-      - name: Start PostgreSQL service
-        run: |
-          docker run --name test-database -e POSTGRES_USER=casacue -e POSTGRES_PASSWORD=password -e POSTGRES_DB=casacue -p 5432:5432 -d postgres:15
+      # Starte das gesamte Container-Cluster mit Backend, Auth und Database
+      - name: Start services
+        run: docker-compose up -d --build
 
-      - name: Wait for PostgreSQL to be ready
+      # Warte bis Backend läuft (wenn du eine /health-Route hast)
+      - name: Wait for Backend
         run: |
-          until docker exec test-database pg_isready -U casacue; do
-            echo "Waiting for database to be ready..."
+          until curl -sSf http://localhost:5001/health; do
+            echo "Waiting for Backend..."
             sleep 5
           done
 
+      # Warte bis Auth läuft (wenn du eine /health-Route hast)
+      - name: Wait for Auth
+        run: |
+          until curl -sSf http://localhost:5002/health; do
+            echo "Waiting for Auth..."
+            sleep 5
+          done
+
+      # Dependencies für Tests (wenn nötig)
       - name: Restore dependencies
         run: |
           dotnet restore CasaCue/CasaCue.csproj
           dotnet restore CasaCue.Tests/CasaCue.Tests.csproj
 
-      - name: Apply EF migrations
-        run: dotnet tool run dotnet-ef database update --project CasaCue/CasaCue.csproj --startup-project CasaCue/CasaCue.csproj
-      
-
+      # Projekt builden
       - name: Build project
         run: dotnet build CasaCue/CasaCue.csproj --configuration Release --no-restore
 
+      # Tests ausführen
       - name: Run tests
         run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
