@@ -57,7 +57,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 try
@@ -75,4 +74,4 @@ finally
 }
 
 // Für Integrationstests
-public partial class Program { }
+public partial class AuthProgram { }

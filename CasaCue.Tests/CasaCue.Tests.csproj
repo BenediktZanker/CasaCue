@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CasaCue\CasaCue.csproj" />
+    <ProjectReference Include="..\CasaCue.Auth\CasaCue.Auth.csproj" />
   </ItemGroup>
 
 </Project>
