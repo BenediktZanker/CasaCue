@@ -6,12 +6,12 @@ using Xunit;
 
 namespace CasaCue.Tests.IntegrationTests
 {
-    public class WaitlistIntegrationTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
+    public class WaitlistIntegrationTests : IClassFixture<WebApplicationFactory<BackendProgram>>, IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly List<Guid> _createdGuests = new(); // Speichert erstellte Guest-IDs für Cleanup
 
-        public WaitlistIntegrationTests(WebApplicationFactory<Program> factory)
+        public WaitlistIntegrationTests(WebApplicationFactory<BackendProgram> factory)
         {
             _client = factory.CreateClient();
         }

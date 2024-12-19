@@ -9,13 +9,13 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace CasaCue.Tests
 {
-    public class AuthControllerTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
+    public class AuthControllerTests : IClassFixture<WebApplicationFactory<AuthProgram>>, IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly ITestOutputHelper _output;
         private readonly List<string> _createdUsers = new(); // Speichert Benutzernamen für das Cleanup
 
-        public AuthControllerTests(WebApplicationFactory<Program> factory, ITestOutputHelper output)
+        public AuthControllerTests(WebApplicationFactory<AuthProgram> factory, ITestOutputHelper output)
         {
             _client = factory.CreateClient();
             _output = output;

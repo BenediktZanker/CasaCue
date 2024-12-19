@@ -60,4 +60,4 @@ finally
 }
 
 // Für Integrationstests
-public partial class Program { }
+public partial class BackendProgram { }
