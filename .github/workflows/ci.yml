@@ -18,7 +18,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Install Dependencies
+      # Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Stelle sicher, dass dies mit deinem Projekt übereinstimmt
+
+      # Restore NuGet Packages
+      - name: Restore NuGet Packages
+        run: dotnet restore
+
+      # Install Docker and Docker Compose
       - name: Install Docker and Docker Compose
         run: |
           sudo apt-get update
@@ -41,14 +51,13 @@ jobs:
         run: sleep 10
 
       # Debugging: Show Logs for Backend
-      - name: Show Logs for Backend
+      - name: Run Logs
         run: docker compose logs backend
 
       # Run Tests
-      - name: Run  Tests
+      - name: Run Tests
         run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
-   
+
       # Stop and Clean Up Docker Compose
       - name: Clean Up
         run: docker compose down -v
-
