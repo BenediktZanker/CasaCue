@@ -100,4 +100,3 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}/auth:latest -f docker/auth/Dockerfile .
           docker push ghcr.io/${{ github.repository }}/auth:latest
-
