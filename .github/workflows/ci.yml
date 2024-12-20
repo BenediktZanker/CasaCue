@@ -18,35 +18,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up Docker
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      # Install Docker Compose
-      - name: Install Docker Compose
+      # Install Dependencies
+      - name: Install Docker and Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
+          sudo apt-get install -y docker-compose
 
-      # Build and Run Docker Compose
+      # Check Docker Compose Version
+      - name: Check Docker Compose Version
+        run: docker compose version
+
+      # Build and Start Docker Compose
       - name: Build and Start Docker Compose
         run: docker compose -f docker-compose.yaml up --build -d
 
-      # Wait for Services to Initialize
-      - name: Wait for Services to Initialize
-        run: sleep 20
-
-      # Verify Test File Path
-      - name: Verify Test File Path
-        run: docker compose exec casacue_backend ls /app/CasaCue.Tests
-
-      # Show Backend Logs
-      - name: Show Backend Logs
-        run: docker compose logs casacue_backend
+      # Check Running Containers
+      - name: Check Running Containers
+        run: docker compose ps
 
       # Run Tests
-      - name: Run Tests
+      - name: Run Backend Tests
         run: docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj
+
+      - name: Run Auth Tests
+        run: docker compose exec casacue_auth dotnet test /app/CasaCue.Auth.Tests/CasaCue.Auth.Tests.csproj
 
       # Stop and Clean Up Docker Compose
       - name: Clean Up
