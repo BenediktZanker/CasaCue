@@ -1,41 +1,49 @@
 version: '3.8'
 
 services:
+  # Backend Service
   backend:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
     ports:
-      - "5001:8080"
+      - "5001:8080" # Mapped Port 8080 im Container auf Port 5001 auf dem Host
     environment:
       - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue;Username=casacue;Password=password
       - AuthService__Url=http://auth:8080
       - ASPNETCORE_URLS=http://+:8080
     depends_on:
       database:
-        condition: service_healthy
+        condition: service_healthy # Warten, bis die Datenbank bereit ist
       auth:
-        condition: service_healthy
+        condition: service_healthy # Warten, bis Auth bereit ist
     networks:
       - casacue-network
     command: >
       sh -c "dotnet ef database update && dotnet CasaCue.dll"
 
+  # Auth Service
   auth:
     build:
       context: .
       dockerfile: docker/auth/Dockerfile
     ports:
-      - "5002:8080"
+      - "5002:8080" # Mapped Port 8080 im Container auf Port 5002 auf dem Host
     environment:
-      - JWT_SECRET=mySuperSecretKeyForJWT123mySuperSecretKeyForJWT123
-      - ASPNETCORE_URLS=http://+:8080
+      JWT_SECRET: "mySuperSecretKeyForJWT123mySuperSecretKeyForJWT123"
+      ASPNETCORE_URLS: "http://+:8080"
     depends_on:
       database:
-        condition: service_healthy
+        condition: service_healthy # Warten, bis die Datenbank bereit ist
     networks:
       - casacue-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
+  # Database Service
   database:
     image: postgres:15
     ports:
