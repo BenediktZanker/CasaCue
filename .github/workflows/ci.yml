@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - hito4
   pull_request:
     branches:
       - main
