@@ -28,21 +28,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      # Check Docker Compose Version
-      - name: Check Docker Compose Version
-        run: docker compose version
-
-      # Ensure Previous Containers Are Down
-      - name: Stop All Containers
-        run: docker compose down -v || true
-
       # Build and Start Docker Compose
       - name: Build and Start Docker Compose
-        run: docker compose -f docker-compose.yaml up --build -d
+        run: docker compose -f docker-compose.yml up --build -d
 
       # Wait for Services to Start
-      - name: Wait for Services to Start
-        run: sleep 10
+      - name: Wait for Services
+        run: sleep 15
+
+      # Check Running Containers
+      - name: Check Running Containers
+        run: docker compose ps
 
       # Run Tests
       - name: Run Tests
@@ -50,8 +46,8 @@ jobs:
           docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj
           docker compose exec casacue_auth dotnet test /app/CasaCue.Auth.Tests/CasaCue.Auth.Tests.csproj
 
-      # Collect Logs on Failure
-      - name: Collect Logs on Failure
+      # Output Logs on Failure
+      - name: Output Logs on Failure
         if: failure()
         run: docker compose logs > docker-compose-logs.txt
 
