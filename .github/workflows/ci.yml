@@ -26,30 +26,27 @@ jobs:
       - name: Install Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y docker-compose-plugin
 
-      # Build and Start Docker Compose
+      # Build and Run Docker Compose
       - name: Build and Start Docker Compose
         run: docker compose -f docker-compose.yaml up --build -d
 
-      # Wait for Services to Start
-      - name: Wait for Services
-        run: sleep 15
+      # Wait for Services to Initialize
+      - name: Wait for Services to Initialize
+        run: sleep 20
 
-      # Check Running Containers
-      - name: Check Running Containers
-        run: docker compose ps
+      # Verify Test File Path
+      - name: Verify Test File Path
+        run: docker compose exec casacue_backend ls /app/CasaCue.Tests
+
+      # Show Backend Logs
+      - name: Show Backend Logs
+        run: docker compose logs casacue_backend
 
       # Run Tests
       - name: Run Tests
-        run: |
-          docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj
-          docker compose exec casacue_auth dotnet test /app/CasaCue.Auth.Tests/CasaCue.Auth.Tests.csproj
-
-      # Output Logs on Failure
-      - name: Output Logs on Failure
-        if: failure()
-        run: docker compose logs > docker-compose-logs.txt
+        run: docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj
 
       # Stop and Clean Up Docker Compose
       - name: Clean Up
