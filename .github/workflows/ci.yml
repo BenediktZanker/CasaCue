@@ -32,7 +32,11 @@ jobs:
       - name: Install Docker and Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
       # Check Docker Compose Version
       - name: Check Docker Compose Version
@@ -61,7 +65,7 @@ jobs:
       # Stop and Clean Up Docker Compose
       - name: Clean Up
         run: docker compose down -v
-        
+
   publish:
     needs: build_and_test
     runs-on: ubuntu-latest
@@ -75,20 +79,5 @@ jobs:
       - name: Install Docker
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker.io
-
-      # Log in to GitHub Packages
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GH_USERNAME }}" --password-stdin
-
-      # Build and Push Backend Image
-      - name: Build and Push Backend Image
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/backend:latest -f docker/backend/Dockerfile .
-          docker push ghcr.io/${{ github.repository }}/backend:latest
-
-      # Build and Push Auth Image
-      - name: Build and Push Auth Image
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/auth:latest -f docker/auth/Dockerfile .
-          docker push ghcr.io/${{ github.repository }}/auth:latest
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive
