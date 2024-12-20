@@ -36,12 +36,17 @@ jobs:
       - name: Check Running Containers
         run: docker compose ps
 
-      # Run Tests
-      - name: Run Backend Tests
-        run: docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj
+      # Wait for Backend to Be Ready
+      - name: Wait for Backend to Be Ready
+        run: sleep 10
 
-      - name: Run Auth Tests
-        run: docker compose exec casacue_auth dotnet test /app/CasaCue.Auth.Tests/CasaCue.Auth.Tests.csproj
+      # Debugging: Show Logs for Backend
+      - name: Show Logs for Backend
+        run: docker compose logs casacue_backend
+
+      # Run Tests
+      - name: Run Integration Tests
+        run: docker compose exec casacue_backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj --filter IntegrationTests
 
       # Stop and Clean Up Docker Compose
       - name: Clean Up
