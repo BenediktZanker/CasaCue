@@ -42,15 +42,11 @@ jobs:
 
       # Debugging: Show Logs for Backend
       - name: Show Logs for Backend
-        run: docker compose logs casacue_backend
+        run: docker compose logs backend
 
-      # Run Backend Tests
-      - name: Run Backend Tests
-        run: docker compose exec backend dotnet test /app/CasaCue.Tests/CasaCue.Tests.csproj --filter IntegrationTests
-
-      # Run Auth Tests
-      - name: Run Auth Tests
-        run: docker compose exec auth dotnet test /app/CasaCue.Auth.Tests/CasaCue.Auth.Tests.csproj --filter IntegrationTests
+      # Run Tests
+      - name: Run  Tests
+        run: dotnet test CasaCue.Tests/CasaCue.Tests.csproj --no-restore --verbosity normal
    
       # Stop and Clean Up Docker Compose
       - name: Clean Up
