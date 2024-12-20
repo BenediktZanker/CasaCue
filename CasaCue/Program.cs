@@ -18,8 +18,8 @@ var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConne
 // ---- Services hinzufügen ----
 // Datenbankkontext mit PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(dbConnectionString)
-        .LogTo(Console.WriteLine, LogLevel.Information));
+    options.UseNpgsql(dbConnectionString, b => 
+        b.MigrationsAssembly("CasaCue"))); // Stellt sicher, dass Migrationen aus dem richtigen Projekt kommen
 
 builder.Services.AddControllers();
 
@@ -32,6 +32,21 @@ builder.Services.AddScoped<WaitlistService>();
 
 var app = builder.Build();
 
+// ---- Automatische Migration ausführen ----
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate(); // Führt ausstehende Migrationen aus
+        Log.Information("Datenbankmigration erfolgreich ausgeführt.");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Fehler bei der Datenbankmigration. Überprüfen Sie die Verbindung oder die Migrationen.");
+    }
+}
+
 // ---- Middleware ----
 // Swagger nur in Development-Umgebungen aktivieren
 if (app.Environment.IsDevelopment())
@@ -40,24 +55,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
-
-try
-{
-    Log.Information("Starting CasaCue Backend Service...");
-    app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Backend Service terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+app.Run();
 
 // Für Integrationstests
 public partial class BackendProgram { }

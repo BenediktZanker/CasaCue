@@ -1,30 +1,27 @@
-# Stage 1: Build Image for .NET SDK
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# CasaCue.Auth Dockerfile (Authentication Service)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 5002
 
-# Set the working directory in the container
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy the Shared project and restore its dependencies
-COPY ./CasaCue.Shared/CasaCue.Shared.csproj ./CasaCue.Shared/
-COPY ./CasaCue.Auth/CasaCue.Auth.csproj ./CasaCue.Auth/
+# Kopiere die Projektdateien
+COPY CasaCue.Auth/*.csproj ./CasaCue.Auth/
+COPY CasaCue.Shared/*.csproj ./CasaCue.Shared/
 RUN dotnet restore ./CasaCue.Auth/CasaCue.Auth.csproj
 
-# Copy the source code of both projects into the container
-COPY ./CasaCue.Shared/ ./CasaCue.Shared/
-COPY ./CasaCue.Auth/ ./CasaCue.Auth/
+# Kopiere den gesamten Quellcode und baue die App
+COPY . .
+WORKDIR /src/CasaCue.Auth
+RUN dotnet build CasaCue.Auth.csproj -c Release -o /app/build
 
-# Build and publish the Auth application
-RUN dotnet publish ./CasaCue.Auth/CasaCue.Auth.csproj -c Release -o /app/publish
+# Veröffentliche die Anwendung
+FROM build AS publish
+RUN dotnet publish CasaCue.Auth.csproj -c Release -o /app/publish
 
-# Stage 2: Runtime Image for .NET
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
-
-# Set the working directory for the runtime container
+# Laufzeitumgebung
+FROM base AS final
 WORKDIR /app
-
-# Copy the compiled application from the build stage
-COPY --from=build /app/publish .
-
-# Define the entry point for the container
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "CasaCue.Auth.dll"]
-

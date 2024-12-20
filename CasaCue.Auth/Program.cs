@@ -15,13 +15,25 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // ---- Konfigurationen laden ----
+builder.Configuration.AddEnvironmentVariables(prefix: "JWT_"); // Umgebungsvariablen laden
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "fallback_secret_key";
+
+if (jwtSecret == "fallback_secret_key")
+{
+    Log.Warning("JWT Secret wurde nicht aus Umgebungsvariablen geladen. Der Fallback-Secret-Key wird verwendet.");
+}
+
 var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(dbConnectionString))
+{
+    Log.Error("Datenbankverbindung ist nicht gesetzt. Überprüfen Sie die Konfiguration oder Umgebungsvariablen.");
+}
 
 // ---- Services hinzufügen ----
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(dbConnectionString)
-           .LogTo(Console.WriteLine, LogLevel.Information));
+    options.UseNpgsql(dbConnectionString, b =>
+        b.MigrationsAssembly("CasaCue.Auth"))); // Auth-Service-Migrationen
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -41,11 +53,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
-// ---- Swagger hinzufügen ----
+// Swagger hinzufügen
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+
 
 // ---- Middleware ----
 if (app.Environment.IsDevelopment())
@@ -54,24 +68,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();       // Aktiviert Swagger-UI
 }
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-try
-{
-    Log.Information("Starting CasaCue Auth Service...");
-    app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Auth Service terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+app.Run();
 
 // Für Integrationstests
 public partial class AuthProgram { }
+

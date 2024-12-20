@@ -25,5 +25,9 @@ WORKDIR /app
 # Copy the compiled application from the build stage
 COPY --from=build /app/publish .
 
+# Copy wait-for-it.sh into the container
+COPY ../../docker/scripts/wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
 # Define the entry point for the container
 ENTRYPOINT ["dotnet", "CasaCue.dll"]

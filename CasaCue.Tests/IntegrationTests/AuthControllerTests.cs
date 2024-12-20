@@ -20,7 +20,7 @@ namespace CasaCue.Tests
             // Client konfigurieren, um mit dem Auth-Service im Docker-Container zu kommunizieren
             _client = new HttpClient
             {
-                BaseAddress = new Uri("http://localhost:5002") // Docker-URL für Auth-Service
+                BaseAddress = new Uri("http://localhost:5003") // Docker-URL für Auth-Service
             };
             _output = output;
         }
