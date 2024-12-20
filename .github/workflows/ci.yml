@@ -92,11 +92,11 @@ jobs:
       # Build and Push Backend Image
       - name: Build and Push Backend Image
         run: |
-          docker build -t ghcr.io/casacue/backend:latest -f docker/backend/Dockerfile .
-          docker push ghcr.io/casacue/backend:latest
+          docker build -t ghcr.io/benediktzanker/casacue/backend:latest -f docker/backend/Dockerfile .
+          docker push ghcr.io/benediktzanker/casacue/backend:latest
 
       # Build and Push Auth Image
       - name: Build and Push Auth Image
         run: |
-          docker build -t ghcr.io/casacue/auth:latest -f docker/auth/Dockerfile .
-          docker push ghcr.io/casacue/auth:latest
+          docker build -t ghcr.io/benediktzanker/casacue/auth:latest -f docker/auth/Dockerfile .
+          docker push ghcr.io/benediktzanker/casacue/auth:latest
