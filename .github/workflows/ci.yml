@@ -30,7 +30,7 @@ jobs:
 
       # Build and Start Docker Compose
       - name: Build and Start Docker Compose
-        run: docker compose -f docker-compose.yml up --build -d
+        run: docker compose -f docker-compose.yaml up --build -d
 
       # Wait for Services to Start
       - name: Wait for Services
