@@ -1,41 +1,63 @@
-
 using CasaCue.Services;
+using CasaCue.Shared.Data; // Gemeinsame Datenbankkontext-Klasse
+using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 10)
-    .CreateLogger();
-    
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ---- Logging-Konfiguration ----
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/backend-log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 10)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSingleton<WaitlistService>();
+// ---- Konfigurationen laden ----
+var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// ---- Services hinzufügen ----
+// Datenbankkontext mit PostgreSQL
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(dbConnectionString, b => 
+        b.MigrationsAssembly("CasaCue"))); // Stellt sicher, dass Migrationen aus dem richtigen Projekt kommen
+
 builder.Services.AddControllers();
+
+// Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Host.UseSerilog(); // Serilog integrieren
+
+// Business-Logik
+builder.Services.AddScoped<WaitlistService>();
 
 var app = builder.Build();
-if (app.Environment.IsEnvironment("Test"))
+
+// ---- Automatische Migration ausführen ----
+using (var scope = app.Services.CreateScope())
 {
-    Log.Logger = new LoggerConfiguration()
-        .WriteTo.Console()
-        .WriteTo.File("logs/test-log-.txt", rollingInterval: RollingInterval.Day)
-        .CreateLogger();
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate(); // Führt ausstehende Migrationen aus
+        Log.Information("Datenbankmigration erfolgreich ausgeführt.");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Fehler bei der Datenbankmigration. Überprüfen Sie die Verbindung oder die Migrationen.");
+    }
 }
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment() )
+
+// ---- Middleware ----
+// Swagger nur in Development-Umgebungen aktivieren
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-//app.UseAuthorization();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
-public partial class Program { }
+
+// Für Integrationstests
+public partial class BackendProgram { }

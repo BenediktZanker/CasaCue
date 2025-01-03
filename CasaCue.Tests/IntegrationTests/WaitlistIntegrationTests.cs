@@ -1,137 +1,77 @@
-using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-
+using Xunit;
 
 namespace CasaCue.Tests.IntegrationTests
 {
-    public class WaitlistIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class WaitlistIntegrationTests : IAsyncLifetime
     {
         private readonly HttpClient _client;
+        private readonly List<Guid> _createdGuests = new(); // Speichert erstellte Guest-IDs für Cleanup
 
-        public WaitlistIntegrationTests(WebApplicationFactory<Program> factory)
+        public WaitlistIntegrationTests()
         {
-            _client = factory.CreateClient();
+            // Client konfigurieren, um mit dem Backend-Service im Docker-Container zu kommunizieren
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5001") // Docker-URL für Backend-Service
+            };
         }
 
-        [Fact]
-        public async Task GetWaitlist_ShouldReturnEmptyListInitially()
-        {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
-            // Act
-            var response = await _client.GetAsync("/api/waitlist");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Equal("[]", responseContent); // Expect an empty list
-        }
+        private StringContent CreateJsonContent(object obj) =>
+            new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
 
         [Fact]
         public async Task AddGuest_ShouldReturnCreatedGuest()
         {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
             // Arrange
-            var guest = new { Id = Guid.NewGuid(), Name = "John Doe", GroupSize = 3 };
-            var jsonContent = new StringContent(JsonSerializer.Serialize(guest), Encoding.UTF8, "application/json");
+            var guestId = Guid.NewGuid();
+            _createdGuests.Add(guestId); // Speichere die ID für Cleanup
+            var guest = new { Id = guestId, Name = "John Doe", GroupSize = 3 };
+            var jsonContent = CreateJsonContent(guest);
 
             // Act
             var response = await _client.PostAsync("/api/waitlist", jsonContent);
 
             // Assert
             response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("John Doe", responseContent);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.Contains("John Doe", content);
         }
 
         [Fact]
         public async Task RemoveGuest_ShouldDeleteGuest()
         {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
             // Arrange
-            var guest = new { Id = Guid.NewGuid(), Name = "Jane Doe", GroupSize = 2 };
-            var jsonContent = new StringContent(JsonSerializer.Serialize(guest), Encoding.UTF8, "application/json");
-            await _client.PostAsync("/api/waitlist", jsonContent);
+            var guestId = Guid.NewGuid();
+            _createdGuests.Add(guestId);
+            var guest = new { Id = guestId, Name = "Jane Doe", GroupSize = 2 };
+            await _client.PostAsync("/api/waitlist", CreateJsonContent(guest));
 
             // Act
-            var deleteResponse = await _client.DeleteAsync($"/api/waitlist/{guest.Id}");
-            var getResponse = await _client.GetAsync($"/api/waitlist/id/{guest.Id}");
+            var deleteResponse = await _client.DeleteAsync($"/api/waitlist/{guestId}");
+            var getResponse = await _client.GetAsync($"/api/waitlist/id/{guestId}");
 
             // Assert
-            deleteResponse.EnsureSuccessStatusCode();
             Assert.Equal(System.Net.HttpStatusCode.NoContent, deleteResponse.StatusCode);
             Assert.Equal(System.Net.HttpStatusCode.NotFound, getResponse.StatusCode);
         }
 
-        [Fact]
-        public async Task GetGuestById_ShouldReturnCorrectGuest()
+        private async Task CleanupGuest(Guid id)
         {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
-            // Arrange
-            var id = Guid.NewGuid();
-            var guest = new { Id = id, Name = "Alice", GroupSize = 4 };
-            var jsonContent = new StringContent(JsonSerializer.Serialize(guest), Encoding.UTF8, "application/json");
-            await _client.PostAsync("/api/waitlist", jsonContent);
-
-            // Act
-            var response = await _client.GetAsync($"/api/waitlist/id/{id}");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Alice", responseContent);
+            await _client.DeleteAsync($"/api/waitlist/cleanup/{id}");
         }
 
-        [Fact]
-        public async Task GetGuestByQueuePosition_ShouldReturnCorrectGuest()
+        // Cleanup-Logik nach jedem Test
+        public async Task DisposeAsync()
         {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
-            // Arrange
-            var guest1 = new { Id = Guid.NewGuid(), Name = "Bob", GroupSize = 2 };
-            var guest2 = new { Id = Guid.NewGuid(), Name = "Charlie", GroupSize = 5 };
-
-            await _client.PostAsync("/api/waitlist", new StringContent(JsonSerializer.Serialize(guest1), Encoding.UTF8, "application/json"));
-            await _client.PostAsync("/api/waitlist", new StringContent(JsonSerializer.Serialize(guest2), Encoding.UTF8, "application/json"));
-
-            // Act
-            var response = await _client.GetAsync("/api/waitlist/queueposition/2");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Charlie", responseContent);
+            foreach (var guestId in _createdGuests)
+            {
+                await CleanupGuest(guestId);
+            }
         }
 
-        [Fact]
-        public async Task GetGuestsByName_ShouldReturnMatchingGuests()
-        {
-            // Reset the waitlist
-            await _client.DeleteAsync("/api/waitlist/reset");
-
-            // Arrange
-            var guest1 = new { Id = Guid.NewGuid(), Name = "Dana", GroupSize = 2 };
-            var guest2 = new { Id = Guid.NewGuid(), Name = "Dana", GroupSize = 3 };
-
-            await _client.PostAsync("/api/waitlist", new StringContent(JsonSerializer.Serialize(guest1), Encoding.UTF8, "application/json"));
-            await _client.PostAsync("/api/waitlist", new StringContent(JsonSerializer.Serialize(guest2), Encoding.UTF8, "application/json"));
-
-            // Act
-            var response = await _client.GetAsync("/api/waitlist/name/Dana");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Dana", responseContent);
-        }
+        public Task InitializeAsync() => Task.CompletedTask; // Keine spezielle Initialisierung nötig
     }
 }

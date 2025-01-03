@@ -1,0 +1,77 @@
+version: '3.8'  # Specifies the version of the Docker Compose file format
+
+services:
+  
+  # Database Service
+  database:
+    image: postgres:15  # Uses the official PostgreSQL image, version 15
+    container_name: casacue_db  # Names the container 'casacue_db' for easy reference
+    environment:
+      POSTGRES_USER: casacue  # Sets the PostgreSQL username to 'casacue'
+      POSTGRES_PASSWORD: password  # Sets the PostgreSQL user's password
+      POSTGRES_DB: casacue  # Creates a PostgreSQL database named 'casacue'
+    volumes:
+      - db_data:/var/lib/postgresql/data  # Mounts a named volume 'db_data' for persistent data storage
+    ports:
+      - "5432:5432"  # Maps port 5432 of the host to port 5432 of the container, allowing external access
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casacue"]  # Command to check if PostgreSQL is ready to accept connections
+      interval: 5s  # Time between each health check
+      timeout: 10s  # Maximum time to wait for the health check to succeed
+      retries: 5  # Number of consecutive failures needed to consider the service unhealthy
+
+  # Backend Service
+  backend:
+    build:
+      context: .  # Sets the build context to the current directory
+      dockerfile: ./docker/backend/Dockerfile  # Specifies the path to the Dockerfile for the backend
+    container_name: casacue_backend  # Names the container 'casacue_backend'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development  # Sets the ASP.NET Core environment to 'Development'
+      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue;Username=casacue;Password=password
+        # Defines the connection string for the PostgreSQL database, pointing to the 'database' service
+    depends_on:
+      database:
+        condition: service_healthy  # Ensures the backend starts only after the database service is healthy
+    ports:
+      - "5001:8080"  # Maps port 8080 of the container to port 5001 of the host, making the API accessible at http://localhost:5001
+    command: >
+      sh -c "./docker/scripts/wait-for-it.sh database:5432 -- 
+             dotnet ef database update --project CasaCue &&
+             dotnet CasaCue.dll"
+      # Executes a shell command that:
+      # 1. Waits for the database service to be ready using 'wait-for-it.sh'
+      # 2. Applies any pending Entity Framework migrations to the 'CasaCue' project
+      # 3. Starts the .NET application
+
+  # Authentication Service
+  auth:
+    build:
+      context: .  # Sets the build context to the current directory
+      dockerfile: ./docker/auth/Dockerfile  # Specifies the path to the Dockerfile for the authentication service
+    container_name: casacue_auth  # Names the container 'casacue_auth'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development  # Sets the ASP.NET Core environment to 'Development'
+      - JWT_Secret=mySuperSecretKeyForJWT123mySuperSecretKeyForJWT123
+        # Defines the secret key used for JWT token generation and validation
+      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=casacue;Username=casacue;Password=password
+        # Defines the connection string for the PostgreSQL database, pointing to the 'database' service
+    depends_on:
+      database:
+        condition: service_healthy  # Ensures the authentication service starts only after the database service is healthy
+    ports:
+      - "5003:8080"  # Maps port 8080 of the container to port 5003 of the host, making the authentication API accessible at http://localhost:5003
+    command: >
+      sh -c "./docker/scripts/wait-for-it.sh database:5432 -- 
+             dotnet ef database update --project CasaCue.Auth &&
+             dotnet CasaCue.Auth.dll"
+      # Executes a shell command that:
+      # 1. Waits for the database service to be ready using 'wait-for-it.sh'
+      # 2. Applies any pending Entity Framework migrations to the 'CasaCue.Auth' project
+      # 3. Starts the Authentication .NET application
+
+# Volumes for Persistent Data Storage
+volumes:
+  db_data:
+    # Named volume 'db_data' is used to persist PostgreSQL data.
+    # This ensures that database data is retained even if the container is restarted or removed.
