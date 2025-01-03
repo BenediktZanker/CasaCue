@@ -1,33 +1,50 @@
-# Stage 1: Build Image for .NET SDK
+# CasaCue Dockerfile (Backend Service)
+
+# Stage 1: Base Image
+# Use the official ASP.NET Core runtime image as the base for the final runtime environment
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app  # Set the working directory inside the container to /app
+EXPOSE 5000  
+EXPOSE 5001  
+
+# Stage 2: Build Environment
+# Use the official .NET SDK image to build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src  # Set the working directory inside the container to /src
 
-# Set the working directory in the container
-WORKDIR /src
+# Copy the project files to the build context
+# This helps in leveraging Docker's caching mechanism to avoid restoring packages unnecessarily
+COPY CasaCue/*.csproj ./CasaCue/
+COPY CasaCue.Shared/*.csproj ./CasaCue.Shared/
 
-# Copy the Shared project and restore its dependencies
-COPY ./CasaCue.Shared/CasaCue.Shared.csproj ./CasaCue.Shared/
-COPY ./CasaCue/CasaCue.csproj ./CasaCue/
+# Restore the NuGet packages required by the project
+# This step is cached unless the project files change
 RUN dotnet restore ./CasaCue/CasaCue.csproj
 
-# Copy the source code of both projects into the container
-COPY ./CasaCue.Shared/ ./CasaCue.Shared/
-COPY ./CasaCue/ ./CasaCue/
+# Copy the entire source code into the container
+COPY . .  
 
-# Build and publish the Backend application
-RUN dotnet publish ./CasaCue/CasaCue.csproj -c Release -o /app/publish
+# Set the working directory to the CasaCue project directory
+WORKDIR /src/CasaCue
 
-# Stage 2: Runtime Image for .NET
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Build the application in Release configuration and output the build artifacts to /app/build
+RUN dotnet build CasaCue.csproj -c Release -o /app/build
 
-# Set the working directory for the runtime container
-WORKDIR /app
+# Stage 3: Publish the Application
+FROM build AS publish
 
-# Copy the compiled application from the build stage
-COPY --from=build /app/publish .
+# Publish the application, compiling it and preparing it for deployment
+# The output is placed in /app/publish
+RUN dotnet publish CasaCue.csproj -c Release -o /app/publish
 
-# Copy wait-for-it.sh into the container
-COPY ../../docker/scripts/wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
+# Stage 4: Final Runtime Image
+# Use the base runtime image to create a lightweight container for running the application
+FROM base AS final
+WORKDIR /app  # Set the working directory to /app
 
-# Define the entry point for the container
+# Copy the published application from the publish stage to the final stage
+COPY --from=publish /app/publish .
+
+# Define the entry point for the container to run the application
 ENTRYPOINT ["dotnet", "CasaCue.dll"]
+
