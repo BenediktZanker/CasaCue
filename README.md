@@ -51,12 +51,29 @@ In this milestone, we implemented the core API and microservice architecture for
 
 For detailed implementation, refer to the [Hito 3 Documentation](./documentation/hito3-microservices.md).
 
+### Milestone 4: Containerization and Authentication Integration
+
+In this milestone, we containerized the Backend and Authentication services, published the Docker containers, integrated the Authentication Service, and updated integration tests and logging mechanisms. Key achievements include:
+
+- **Container Creation and Publishing**:
+  - Created Dockerfiles for Backend and Authentication services.
+  - Built and published Docker containers to the GitHub Container Registry (GHCR).
+
+- **Authentication Service Integration**:
+  - Added the Authentication Service to enhance security and user management.
+
+- **Testing and Logging Enhancements**:
+  - Updated integration tests to operate within the containerized environment.
+  - Enhanced logging using Serilog for better monitoring and debugging.
+
+For detailed implementation, refer to the [Milestone 4 Documentation](./documentation/hito4-contenedores.md).
+
 ---
 
 ## Project Goal
 
 The goal of CasaCue is to digitize the waitlist management for restaurants, providing two registration methods:
-- **On-Site Registration**: Guests can join the waitlist by scanning a QR code at the restaurant.
+- **On-Site Registration**: Guests can join the waitlist at the restaurant.
 - **Online Registration**: Guests can check availability remotely and join the waitlist online.
 
 By offering these flexible registration methods, CasaCue ensures a scalable solution for both in-person and remote users.
