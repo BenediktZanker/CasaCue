@@ -210,6 +210,4 @@ Once the containers are published, they appear in my profile:
 - Tests were rewritten to utilize containers during execution.
 - Additional logging and debugging capabilities were integrated caused by issues during developing.
 
-
-
 For further details about the project, refer to the main [README](../README.md).
