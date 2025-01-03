@@ -53,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
-// Swagger hinzufügen
+// add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -73,6 +73,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.Run();
 
-// Für Integrationstests
+// For Integrationstests
 public partial class AuthProgram { }
 

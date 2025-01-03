@@ -14,7 +14,6 @@ namespace CasaCue.Tests
         private readonly HttpClient _client;
         private readonly ITestOutputHelper _output;
         private readonly List<string> _createdUsers = new(); // Speichert Benutzernamen für das Cleanup
-
         public AuthControllerTests(ITestOutputHelper output)
         {
             // Client konfigurieren, um mit dem Auth-Service im Docker-Container zu kommunizieren
