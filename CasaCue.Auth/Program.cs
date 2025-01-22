@@ -62,12 +62,12 @@ var app = builder.Build();
 
 
 // ---- Middleware ----
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();         // Aktiviert Swagger
     app.UseSwaggerUI();       // Aktiviert Swagger-UI
 }
-
+app.MapGet("/", () => Results.Ok("Welcome to CasaCue Auth API!"));
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
