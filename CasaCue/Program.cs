@@ -49,12 +49,12 @@ using (var scope = app.Services.CreateScope())
 
 // ---- Middleware ----
 // Swagger nur in Development-Umgebungen aktivieren
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.MapGet("/", () => Results.Ok("Welcome to CasaCue Auth API!"));
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
