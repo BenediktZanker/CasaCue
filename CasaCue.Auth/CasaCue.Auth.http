@@ -1,0 +1,6 @@
+@CasaCue.Auth_HostAddress = http://localhost:5223
+
+GET {{CasaCue.Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
