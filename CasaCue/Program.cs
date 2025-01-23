@@ -54,7 +54,7 @@ if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.MapGet("/", () => Results.Ok("Welcome to CasaCue Auth API!"));
+app.MapGet("/", () => Results.Ok("Welcome to CasaCue Backend API!"));
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
