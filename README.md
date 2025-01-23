@@ -68,7 +68,11 @@ In this milestone, we containerized the Backend and Authentication services, pub
 
 For detailed implementation, refer to the [Milestone 4 Documentation](./documentation/hito4-contenedores.md).
 
----
+### Milestone 5: Paas deployment
+
+For this milestone, I deployed my project to the PaaS platform Render, choosing it for its ease of use, cost-effectiveness, and GitHub integration. I manually created a PostgreSQL database on Render and configured the application to connect using environment variables. The API containers were deployed as web services, and Swagger was activated to facilitate API testing. Finally, I validated the application by accessing the live services, testing endpoints with Swagger, and confirming successful database operations.
+
+For detailed information, refer to the [Milestone 5 Documentation](./documentation/hito5-paas.md).
 
 ## Project Goal
 
